@@ -1,5 +1,7 @@
 #include <iostream>
 
+using namespace std;
+
 class Engine {
 public:
     Engine() { std::cout << "Engine created.\n"; }
