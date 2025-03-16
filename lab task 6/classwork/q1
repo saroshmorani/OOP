@@ -1,0 +1,130 @@
+#include <iostream>
+#include <vector>
+
+class BankAccount {
+protected:
+    std::string accountNumber;
+    double balance;
+
+public:
+    BankAccount(std::string accNum, double bal) : accountNumber(accNum), balance(bal) {}
+    virtual ~BankAccount() {}
+    virtual void deposit(double amount) { balance += amount; }
+    virtual bool withdraw(double amount) {
+        if (balance >= amount) {
+            balance -= amount;
+            return true;
+        }
+        return false;
+    }
+    virtual void applyMonthlyUpdates() {}
+    virtual void display() const {
+        std::cout << "Account: " << accountNumber << " Balance: " << balance << std::endl;
+    }
+};
+
+class SavingsAccount : public BankAccount {
+    double interestRate;
+public:
+    SavingsAccount(std::string accNum, double bal, double rate)
+        : BankAccount(accNum, bal), interestRate(rate) {}
+    void applyMonthlyUpdates() override {
+        balance += balance * interestRate;
+    }
+};
+
+class CheckingAccount : public BankAccount {
+    double overdraftLimit;
+public:
+    CheckingAccount(std::string accNum, double bal, double limit)
+        : BankAccount(accNum, bal), overdraftLimit(limit) {}
+    bool withdraw(double amount) override {
+        if (balance + overdraftLimit >= amount) {
+            balance -= amount;
+            if (balance < 0) {
+                std::cout << "[Alert] Overdraft limit exceeded!" << std::endl;
+            }
+            return true;
+        }
+        return false;
+    }
+};
+
+class BusinessAccount : public BankAccount {
+    double taxRate;
+public:
+    BusinessAccount(std::string accNum, double bal, double tax)
+        : BankAccount(accNum, bal), taxRate(tax) {}
+    void deposit(double amount) override {
+        double tax = amount * taxRate;
+        balance += (amount - tax);
+    }
+};
+
+class User {
+protected:
+    std::string name;
+public:
+    User(std::string n) : name(n) {}
+    virtual void accessAccount(BankAccount &account) = 0;
+    virtual ~User() {}
+};
+
+class Customer : public User {
+public:
+    Customer(std::string n) : User(n) {}
+    void accessAccount(BankAccount &account) override {
+        std::cout << name << " is accessing their account." << std::endl;
+        account.display();
+    }
+};
+
+class Employee : public User {
+public:
+    Employee(std::string n) : User(n) {}
+};
+
+class Teller : public Employee {
+public:
+    Teller(std::string n) : Employee(n) {}
+    void accessAccount(BankAccount &account) override {
+        std::cout << name << " is assisting with the account." << std::endl;
+        account.display();
+    }
+};
+
+class Manager : public Employee {
+public:
+    Manager(std::string n) : Employee(n) {}
+    void accessAccount(BankAccount &account) override {
+        std::cout << name << " is reviewing the account." << std::endl;
+        account.display();
+    }
+};
+
+int main() {
+    std::vector<BankAccount*> accounts;
+    accounts.push_back(new SavingsAccount("SAM123", 1000, 0.02));
+    accounts.push_back(new CheckingAccount("CHI456", 500, 200));
+    accounts.push_back(new BusinessAccount("BUV789", 2000, 0.05));
+    
+    std::vector<User*> users;
+    users.push_back(new Customer("Alyssa"));
+    users.push_back(new Teller("Bobby"));
+    users.push_back(new Manager("Charles"));
+
+    for (auto user : users) {
+        for (auto account : accounts) {
+            user->accessAccount(*account);
+        }
+    }
+    
+    for (auto account : accounts) {
+        delete account;
+    }
+    for (auto user : users) {
+        delete user;
+    }
+    
+    return 0;
+}
