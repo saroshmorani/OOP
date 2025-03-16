@@ -1,0 +1,87 @@
+#include <iostream>
+#include <vector>
+
+class MediaFile {
+protected:
+    std::string filePath;
+    double fileSize;
+
+public:
+    MediaFile(std::string path, double size) : filePath(path), fileSize(size) {}
+    virtual ~MediaFile() {}
+    virtual void play() = 0;
+    virtual void stop() { std::cout << "Stopping media: " << filePath << std::endl; }
+    virtual void displayInfo() const {
+        std::cout << "File: " << filePath << " | Size: " << fileSize << " MB" << std::endl;
+    }
+};
+
+class VisualMedia : virtual public MediaFile {
+protected:
+    int resolutionX, resolutionY;
+public:
+    VisualMedia(std::string path, double size, int resX, int resY)
+        : MediaFile(path, size), resolutionX(resX), resolutionY(resY) {}
+    void displayInfo() const override {
+        MediaFile::displayInfo();
+        std::cout << "Resolution: " << resolutionX << "x" << resolutionY << std::endl;
+    }
+};
+
+class AudioMedia : virtual public MediaFile {
+protected:
+    int sampleRate;
+public:
+    AudioMedia(std::string path, double size, int rate)
+        : MediaFile(path, size), sampleRate(rate) {}
+    void displayInfo() const override {
+        MediaFile::displayInfo();
+        std::cout << "Sample Rate: " << sampleRate << " Hz" << std::endl;
+    }
+};
+
+class VideoFile : public VisualMedia, public AudioMedia {
+public:
+    VideoFile(std::string path, double size, int resX, int resY, int rate)
+        : MediaFile(path, size), VisualMedia(path, size, resX, resY), AudioMedia(path, size, rate) {}
+    void play() override {
+        std::cout << "Playing video: " << filePath << " at " << resolutionX << "x" << resolutionY << " with audio " << sampleRate << " Hz." << std::endl;
+    }
+};
+
+class ImageFile : public VisualMedia {
+public:
+    ImageFile(std::string path, double size, int resX, int resY)
+        : MediaFile(path, size), VisualMedia(path, size, resX, resY) {}
+    void play() override {
+        std::cout << "Displaying image: " << filePath << " at " << resolutionX << "x" << resolutionY << std::endl;
+    }
+};
+
+class AudioFile : public AudioMedia {
+public:
+    AudioFile(std::string path, double size, int rate)
+        : MediaFile(path, size), AudioMedia(path, size, rate) {}
+    void play() override {
+        std::cout << "Playing audio: " << filePath << " at " << sampleRate << " Hz." << std::endl;
+    }
+};
+
+int main() {
+    std::vector<MediaFile*> library;
+    library.push_back(new VideoFile("movie.mp4", 1024, 1920, 1080, 44100));
+    library.push_back(new ImageFile("photo.jpg", 5, 1920, 1080));
+    library.push_back(new AudioFile("song.mp3", 10, 44100));
+    
+    for (auto media : library) {
+        media->play();
+        media->displayInfo();
+        media->stop();
+        std::cout << "-----------------" << std::endl;
+    }
+    
+    for (auto media : library) {
+        delete media;
+    }
+    return 0;
+}
