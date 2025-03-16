@@ -1,0 +1,127 @@
+#include <iostream>
+#include <vector>
+
+class Employee {
+protected:
+    int id;
+    std::string name;
+public:
+    Employee(int empId, std::string empName) : id(empId), name(empName) {}
+    virtual ~Employee() {}
+    virtual void displayRole() const = 0;
+};
+
+class IOrderTaker {
+public:
+    virtual void takeOrder(const std::string& order) = 0;
+    virtual ~IOrderTaker() {}
+};
+
+class IOrderPreparer {
+public:
+    virtual void prepareOrder(const std::string& order) = 0;
+    virtual ~IOrderPreparer() {}
+};
+
+class IBiller {
+public:
+    virtual void generateBill(double amount) = 0;
+    virtual ~IBiller() {}
+};
+
+class Waiter : public Employee, public IOrderTaker {
+public:
+    Waiter(int empId, std::string empName) : Employee(empId, empName) {}
+    void takeOrder(const std::string& order) override {
+        std::cout << name << " (Waiter) is taking order: " << order << std::endl;
+    }
+    void displayRole() const override {
+        std::cout << name << " is a Waiter." << std::endl;
+    }
+};
+
+class Chef : public Employee, public IOrderPreparer {
+public:
+    Chef(int empId, std::string empName) : Employee(empId, empName) {}
+    void prepareOrder(const std::string& order) override {
+        std::cout << name << " (Chef) is preparing order: " << order << std::endl;
+    }
+    void displayRole() const override {
+        std::cout << name << " is a Chef." << std::endl;
+    }
+};
+
+class Cashier : public Employee, public IBiller {
+public:
+    Cashier(int empId, std::string empName) : Employee(empId, empName) {}
+    void generateBill(double amount) override {
+        std::cout << name << " (Cashier) is generating bill: $" << amount << std::endl;
+    }
+    void displayRole() const override {
+        std::cout << name << " is a Cashier." << std::endl;
+    }
+};
+
+class Manager : public Employee, public IOrderTaker, public IBiller {
+public:
+    Manager(int empId, std::string empName) : Employee(empId, empName) {}
+    void takeOrder(const std::string& order) override {
+        std::cout << name << " (Manager) is taking order: " << order << std::endl;
+    }
+    void generateBill(double amount) override {
+        std::cout << name << " (Manager) is generating bill: $" << amount << std::endl;
+    }
+    void displayRole() const override {
+        std::cout << name << " is a Manager." << std::endl;
+    }
+};
+
+class Menu {
+protected:
+    std::vector<std::string> items;
+public:
+    virtual ~Menu() {}
+    virtual double calculateTotalCost() const = 0;
+};
+
+class FoodMenu : public Menu {
+public:
+    FoodMenu() { items = {"Burger", "Pizza", "Pasta"}; }
+    double calculateTotalCost() const override {
+        return items.size() * 10.0; // Simple pricing
+    }
+};
+
+class BeverageMenu : public Menu {
+public:
+    BeverageMenu() { items = {"Soda", "Coffee", "Juice"}; }
+    double calculateTotalCost() const override {
+        return items.size() * 5.0 * 1.1; // Includes beverage tax
+    }
+};
+
+int main() {
+    std::vector<Employee*> staff;
+    staff.push_back(new Waiter(101, "Alice"));
+    staff.push_back(new Chef(102, "Bob"));
+    staff.push_back(new Cashier(103, "Charlie"));
+    staff.push_back(new Manager(104, "David"));
+
+    for (auto emp : staff) {
+        emp->displayRole();
+    }
+    
+    IOrderTaker* waiter = dynamic_cast<IOrderTaker*>(staff[0]);
+    if (waiter) waiter->takeOrder("Pasta");
+    
+    IOrderPreparer* chef = dynamic_cast<IOrderPreparer*>(staff[1]);
+    if (chef) chef->prepareOrder("Pasta");
+    
+    IBiller* cashier = dynamic_cast<IBiller*>(staff[2]);
+    if (cashier) cashier->generateBill(25.0);
+    
+    for (auto emp : staff) {
+        delete emp;
+    }
+    return 0;
+}
