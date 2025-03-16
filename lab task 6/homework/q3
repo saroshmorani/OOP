@@ -1,0 +1,55 @@
+#include <iostream>
+#include <vector>
+
+class Student {
+protected:
+    std::string name;
+    int rollNumber;
+public:
+    Student(std::string studentName, int rollNo) : name(studentName), rollNumber(rollNo) {}
+    virtual ~Student() {}
+    virtual void displayDetails() const {
+        std::cout << "Student Name: " << name << "\nRoll Number: " << rollNumber << std::endl;
+    }
+};
+
+class Marks : public Student {
+protected:
+    std::vector<int> scores;
+public:
+    Marks(std::string studentName, int rollNo, std::vector<int> studentScores)
+        : Student(studentName, rollNo), scores(studentScores) {}
+    void displayMarks() const {
+        std::cout << "Marks Obtained: ";
+        for (int mark : scores) {
+            std::cout << mark << " ";
+        }
+        std::cout << std::endl;
+    }
+};
+
+class Result : public Marks {
+public:
+    Result(std::string studentName, int rollNo, std::vector<int> studentScores)
+        : Marks(studentName, rollNo, studentScores) {}
+    void displayResult() const {
+        int totalMarks = 0;
+        for (int mark : scores) {
+            totalMarks += mark;
+        }
+        double averageMarks = static_cast<double>(totalMarks) / scores.size();
+        
+        displayDetails();
+        displayMarks();
+        std::cout << "Total Marks: " << totalMarks << "\nAverage Marks: " << averageMarks << std::endl;
+    }
+};
+
+int main() {
+    std::vector<int> studentScores = {85, 90, 78, 92, 88};
+    Result student("John Doe", 101, studentScores);
+    
+    student.displayResult();
+    
+    return 0;
+}
