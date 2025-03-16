@@ -1,0 +1,50 @@
+#include <iostream>
+#include <vector>
+
+class Book {
+protected:
+    std::string genre;
+public:
+    Book(std::string bookGenre) : genre(bookGenre) {}
+    virtual ~Book() {}
+    virtual void displayDetails() const = 0;
+};
+
+class Novel : public Book {
+private:
+    std::string title;
+    std::string author;
+public:
+    Novel(std::string bookTitle, std::string bookAuthor)
+        : Book("Novel"), title(bookTitle), author(bookAuthor) {}
+    void displayDetails() const override {
+        std::cout << "Genre: " << genre << ", Title: " << title << ", Author: " << author << std::endl;
+    }
+};
+
+class Mystery : public Book {
+private:
+    std::string title;
+    std::string author;
+public:
+    Mystery(std::string bookTitle, std::string bookAuthor)
+        : Book("Mystery"), title(bookTitle), author(bookAuthor) {}
+    void displayDetails() const override {
+        std::cout << "Genre: " << genre << ", Title: " << title << ", Author: " << author << std::endl;
+    }
+};
+
+int main() {
+    std::vector<Book*> library;
+    library.push_back(new Novel("Pride and Prejudice", "Jane Austen"));
+    library.push_back(new Mystery("The Hound of the Baskervilles", "Arthur Conan Doyle"));
+    
+    for (const auto& book : library) {
+        book->displayDetails();
+    }
+    
+    for (auto& book : library) {
+        delete book;
+    }
+    return 0;
+}
