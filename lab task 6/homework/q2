@@ -1,0 +1,70 @@
+#include <iostream>
+#include <vector>
+
+class Vehicle {
+protected:
+    double price;
+public:
+    Vehicle(double vehiclePrice) : price(vehiclePrice) {}
+    virtual ~Vehicle() {}
+    virtual void displayDetails() const = 0;
+};
+
+class Car : public Vehicle {
+protected:
+    int seatingCapacity;
+    int numberOfDoors;
+    std::string fuelType;
+public:
+    Car(double vehiclePrice, int seats, int doors, std::string fuel)
+        : Vehicle(vehiclePrice), seatingCapacity(seats), numberOfDoors(doors), fuelType(fuel) {}
+};
+
+class Motorcycle : public Vehicle {
+protected:
+    int numberOfCylinders;
+    int numberOfGears;
+    int numberOfWheels;
+public:
+    Motorcycle(double vehiclePrice, int cylinders, int gears, int wheels)
+        : Vehicle(vehiclePrice), numberOfCylinders(cylinders), numberOfGears(gears), numberOfWheels(wheels) {}
+};
+
+class Audi : public Car {
+private:
+    std::string modelType;
+public:
+    Audi(double vehiclePrice, int seats, int doors, std::string fuel, std::string model)
+        : Car(vehiclePrice, seats, doors, fuel), modelType(model) {}
+    void displayDetails() const override {
+        std::cout << "Audi Car Details:\n";
+        std::cout << "Price: $" << price << "\nSeating Capacity: " << seatingCapacity
+                  << "\nNumber of Doors: " << numberOfDoors << "\nFuel Type: " << fuelType
+                  << "\nModel Type: " << modelType << std::endl;
+    }
+};
+
+class Yamaha : public Motorcycle {
+private:
+    std::string makeType;
+public:
+    Yamaha(double vehiclePrice, int cylinders, int gears, int wheels, std::string make)
+        : Motorcycle(vehiclePrice, cylinders, gears, wheels), makeType(make) {}
+    void displayDetails() const override {
+        std::cout << "Yamaha Motorcycle Details:\n";
+        std::cout << "Price: $" << price << "\nNumber of Cylinders: " << numberOfCylinders
+                  << "\nNumber of Gears: " << numberOfGears << "\nNumber of Wheels: " << numberOfWheels
+                  << "\nMake Type: " << makeType << std::endl;
+    }
+};
+
+int main() {
+    Audi myAudi(50000, 5, 4, "Petrol", "A6");
+    Yamaha myYamaha(15000, 2, 6, 2, "Sport");
+    
+    myAudi.displayDetails();
+    std::cout << "\n";
+    myYamaha.displayDetails();
+    
+    return 0;
+}
